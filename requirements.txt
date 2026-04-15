@@ -1,0 +1,9 @@
+fastapi>=0.115.0,<1.0.0
+uvicorn[standard]>=0.30.0
+jinja2>=3.1.2
+pydantic>=2.7.0,<3.0.0
+nltk>=3.8.1
+pyttsx3>=2.90
+python-multipart>=0.0.6
+pytest>=8.0.0
+python-dotenv>=1.0.0

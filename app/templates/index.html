@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Empathy Engine</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --ink: #15202b;
+            --muted: #5f6f7e;
+            --surface: #ffffff;
+            --line: #d9e2ec;
+            --accent: #0f766e;
+            --accent-dark: #115e59;
+            --warm: #b45309;
+            --bg: #f5f8fb;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: var(--bg);
+            color: var(--ink);
+        }
+
+        header {
+            background: #102a43;
+            color: #ffffff;
+            padding: 36px 20px 30px;
+        }
+
+        .header-inner,
+        main {
+            width: min(1040px, calc(100% - 32px));
+            margin: 0 auto;
+        }
+
+        h1 {
+            margin: 0 0 10px;
+            font-size: clamp(2rem, 5vw, 4rem);
+            line-height: 1.02;
+            letter-spacing: 0;
+        }
+
+        header p {
+            margin: 0;
+            max-width: 720px;
+            color: #dbeafe;
+            font-size: 1.05rem;
+            line-height: 1.55;
+        }
+
+        main {
+            padding: 28px 0 48px;
+            display: grid;
+            grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
+            gap: 22px;
+        }
+
+        section,
+        aside {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 22px;
+            box-shadow: 0 16px 35px rgba(16, 42, 67, 0.08);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 220px;
+            resize: vertical;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 14px;
+            font: inherit;
+            line-height: 1.55;
+            color: var(--ink);
+        }
+
+        textarea:focus {
+            outline: 3px solid rgba(15, 118, 110, 0.18);
+            border-color: var(--accent);
+        }
+
+        button {
+            margin-top: 14px;
+            width: 100%;
+            border: 0;
+            border-radius: 8px;
+            min-height: 48px;
+            background: var(--accent);
+            color: white;
+            font-weight: 800;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: var(--accent-dark);
+        }
+
+        button:disabled {
+            cursor: wait;
+            opacity: 0.72;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            margin: 4px 0 18px;
+        }
+
+        .metric {
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 14px;
+        }
+
+        .metric span {
+            display: block;
+            color: var(--muted);
+            font-size: 0.85rem;
+            margin-bottom: 6px;
+        }
+
+        .metric strong {
+            font-size: 1.25rem;
+        }
+
+        .audio-block {
+            margin-top: 16px;
+        }
+
+        .audio-block h3 {
+            margin: 0 0 8px;
+            font-size: 1rem;
+        }
+
+        audio {
+            width: 100%;
+        }
+
+        .sentences {
+            margin-top: 20px;
+            border-top: 1px solid var(--line);
+            padding-top: 14px;
+        }
+
+        .sentence-row {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--line);
+            color: var(--muted);
+            line-height: 1.45;
+        }
+
+        .sentence-row strong {
+            color: var(--warm);
+        }
+
+        .voice-detail {
+            display: block;
+            margin-top: 4px;
+            color: var(--ink);
+            font-size: 0.86rem;
+        }
+
+        .description {
+            margin: 0 0 16px;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        .notice {
+            margin-top: 10px;
+            color: #7c2d12;
+            background: #ffedd5;
+            border: 1px solid #fed7aa;
+            border-radius: 8px;
+            padding: 10px;
+            line-height: 1.4;
+        }
+
+        .prosody-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+            margin: 12px 0 18px;
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        .prosody-grid span {
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 8px;
+        }
+
+        .empty {
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        .error {
+            display: none;
+            margin-top: 14px;
+            color: #991b1b;
+            background: #fee2e2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        @media (max-width: 820px) {
+            main {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-inner">
+            <h1>The Empathy Engine</h1>
+            <p>Compare neutral speech, offline emotional modulation, and optional Hugging Face neural TTS from the same emotion-aware pipeline.</p>
+        </div>
+    </header>
+
+    <main>
+        <section>
+            <form id="generate-form">
+                <label for="text">Text input</label>
+                <textarea id="text" name="text" placeholder="I am really happy today! But yesterday was difficult, and I felt frustrated." required></textarea>
+                <button id="submit" type="submit">Generate emotional speech</button>
+                <div id="error" class="error"></div>
+            </form>
+        </section>
+
+        <aside>
+            <div id="empty-state" class="empty">
+                Submit text to see the detected emotion, intensity score, and comparison audio players.
+            </div>
+
+            <div id="result" hidden>
+                <div class="result-grid">
+                    <div class="metric">
+                        <span>Detected emotion</span>
+                        <strong id="emotion">-</strong>
+                    </div>
+                    <div class="metric">
+                        <span>Intensity</span>
+                        <strong id="intensity">-</strong>
+                    </div>
+                    <div class="metric">
+                        <span>Confidence</span>
+                        <strong id="confidence">-</strong>
+                    </div>
+                </div>
+
+                <p id="emotion-description" class="description"></p>
+
+                <div class="prosody-grid">
+                    <span id="prosody-valence"></span>
+                    <span id="prosody-arousal"></span>
+                    <span id="prosody-rate"></span>
+                    <span id="prosody-pitch"></span>
+                    <span id="prosody-volume"></span>
+                    <span id="prosody-pause"></span>
+                </div>
+
+                <div class="audio-block">
+                    <h3>Normal voice</h3>
+                    <audio id="normal-audio" controls></audio>
+                </div>
+
+                <div class="audio-block">
+                    <h3>Offline emotional voice</h3>
+                    <audio id="emotional-audio" controls></audio>
+                </div>
+
+                <div id="huggingface-block" class="audio-block" hidden>
+                    <h3>Hugging Face neural voice</h3>
+                    <audio id="huggingface-audio" controls></audio>
+                </div>
+
+                <div id="huggingface-notice" class="notice" hidden></div>
+
+                <div class="sentences">
+                    <h3>Sentence analysis</h3>
+                    <div id="sentence-list"></div>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <script>
+        const form = document.getElementById("generate-form");
+        const submit = document.getElementById("submit");
+        const error = document.getElementById("error");
+        const result = document.getElementById("result");
+        const emptyState = document.getElementById("empty-state");
+
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            error.style.display = "none";
+            submit.disabled = true;
+            submit.textContent = "Generating...";
+
+            try {
+                const response = await fetch("/generate", {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({text: document.getElementById("text").value})
+                });
+
+                if (!response.ok) {
+                    const body = await response.json();
+                    throw new Error(body.detail || "Unable to generate speech.");
+                }
+
+                const data = await response.json();
+                document.getElementById("emotion").textContent = data.emotion;
+                document.getElementById("intensity").textContent = Number(data.intensity).toFixed(2);
+                document.getElementById("confidence").textContent = Number(data.confidence).toFixed(2);
+                document.getElementById("emotion-description").textContent = data.emotion_description;
+                document.getElementById("prosody-valence").textContent = `valence: ${data.prosody_plan.valence}`;
+                document.getElementById("prosody-arousal").textContent = `arousal: ${data.prosody_plan.arousal}`;
+                document.getElementById("prosody-rate").textContent = `rate: ${data.prosody_plan.rate_change_percent}%`;
+                document.getElementById("prosody-pitch").textContent = `pitch: ${data.prosody_plan.pitch_change_percent}%`;
+                document.getElementById("prosody-volume").textContent = `volume: ${data.prosody_plan.volume_change_percent}%`;
+                document.getElementById("prosody-pause").textContent = `pause: ${data.prosody_plan.pause_ms}ms`;
+                document.getElementById("emotional-audio").src = data.emotional_audio_url;
+                document.getElementById("normal-audio").src = data.normal_audio_url;
+
+                const hfBlock = document.getElementById("huggingface-block");
+                const hfNotice = document.getElementById("huggingface-notice");
+                if (data.huggingface_audio_url) {
+                    document.getElementById("huggingface-audio").src = data.huggingface_audio_url;
+                    hfBlock.hidden = false;
+                    hfNotice.hidden = true;
+                } else {
+                    hfBlock.hidden = true;
+                    hfNotice.hidden = false;
+                    hfNotice.textContent = data.huggingface_tts_enabled
+                        ? (data.huggingface_tts_error || "Hugging Face neural TTS is enabled but did not return audio.")
+                        : "Hugging Face neural TTS is off. Set EMPATHY_ENABLE_HF_TTS=true and provide HF_TOKEN to show the third comparison voice.";
+                }
+
+                const sentenceList = document.getElementById("sentence-list");
+                sentenceList.innerHTML = "";
+                data.sentences.forEach((item) => {
+                    const row = document.createElement("div");
+                    row.className = "sentence-row";
+                    const summary = document.createElement("div");
+                    summary.textContent = `${item.emotion} (${Number(item.intensity).toFixed(2)}): ${item.sentence}`;
+                    const description = document.createElement("span");
+                    description.className = "voice-detail";
+                    description.textContent = item.description;
+                    const voice = document.createElement("span");
+                    voice.className = "voice-detail";
+                    voice.textContent = `rate ${item.voice_parameters.rate}, pitch ${Number(item.voice_parameters.pitch).toFixed(2)}, volume ${Number(item.voice_parameters.volume).toFixed(2)}, emphasis: ${item.prosody_plan.emphasis}`;
+                    row.appendChild(summary);
+                    row.appendChild(description);
+                    row.appendChild(voice);
+                    sentenceList.appendChild(row);
+                });
+
+                emptyState.hidden = true;
+                result.hidden = false;
+            } catch (err) {
+                error.textContent = err.message;
+                error.style.display = "block";
+            } finally {
+                submit.disabled = false;
+                submit.textContent = "Generate emotional speech";
+            }
+        });
+    </script>
+</body>
+</html>
