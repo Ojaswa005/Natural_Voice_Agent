@@ -1,8 +1,14 @@
 # Natural Voice Agent
 
-Demo: [Watch the project walkthrough](docs/media/demo.mp4)
+An emotion-aware text-to-speech system that compares normal, emotional, and neural voice generation from the same input text.
 
-The Empathy Engine: Giving AI a Human Voice
+## Demo
+
+Watch the project walkthrough here: [demo1.mp4](docs/media/demo1.mp4)
+
+For the best GitHub README experience, keep a short preview GIF or thumbnail in `docs/media/` and link it to the full MP4.
+
+## Overview
 
 The Empathy Engine is a production-minded FastAPI project that turns plain text into emotionally expressive audio. It detects sentiment and intensity with NLTK VADER, derives granular emotions with transparent rules, maps emotion into voice parameters, and generates WAV output through an offline `pyttsx3` text-to-speech provider.
 
