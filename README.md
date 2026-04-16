@@ -4,7 +4,10 @@ An emotion-aware text-to-speech system that compares normal, emotional, and neur
 
 ## Demo
 
-Watch the project walkthrough here: [demo1.mp4](docs/media/demo1.mp4)
+Watch the project walkthrough here: [demo1.mp4](docs/media/demo1.mp4), due to large file size if does not open download the raw file to see on desktop.
+
+<img width="858" height="476" alt="image" src="https://github.com/user-attachments/assets/1f93680c-0514-4c3f-a0f5-eb71aa7b518b" />
+
 
 For the best GitHub README experience, keep a short preview GIF or thumbnail in `docs/media/` and link it to the full MP4.
 
