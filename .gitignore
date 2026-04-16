@@ -10,3 +10,4 @@ pytest-cache-files-*/
 .ruff_cache/
 app/static/audio/*.wav
 !app/static/audio/.gitkeep
+app/static/pykokoro_cache/
